@@ -9,8 +9,9 @@ public class main {
 		selecteurDeLecture a = new selecteurDeLecture();
 		
 		a.lecteur();
-		//a.calculDC();
+		a.calculDC();
 		System.out.println(a.classe_LOC);
+		System.out.println(a.lignesNCLOC);
 		System.out.println(a.classe_CLOC);
 		
 		
