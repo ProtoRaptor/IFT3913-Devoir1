@@ -1,10 +1,15 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class selecteurDeLecture {
 
-	int classe_LOC, paquet_LOC, classe_CLOC, lignesNCLOC, paquetCLOC, classe_DC, paquet_DC;
+	int classe_LOC, paquet_LOC, classe_CLOC, lignesNCLOC, 
+		paquetCLOC, classe_DC, paquet_DC, nbDeFonction,
+		wMC, noeudPredicat;
+	//liste qui conserve le nombre de predicat par fonction detecter
+	ArrayList<Integer> fonctions;
 	
 	public selecteurDeLecture() {
 		
@@ -15,6 +20,10 @@ public class selecteurDeLecture {
 		paquetCLOC = 0;
 		classe_DC = 0;
 		paquet_DC = 0;
+		nbDeFonction = 0;
+		wMC = 0;
+		noeudPredicat = 0;
+		fonctions = new ArrayList<Integer>();
 		
 	}
 	
@@ -28,12 +37,17 @@ public class selecteurDeLecture {
 	}
 	
 	
-	public void lecteur() throws FileNotFoundException {
+	public void lecteur(String input) throws FileNotFoundException {
 		
-		String testing = "test.txt";
 		int nextEstComment = 0;
+		int dansClass = 0;
+		//determine le nombre d'operations imbriquer de la position actuelle
+		//ex: void h(){ if(){} } = 2
+		int profondeurDansClass = 0;
+		//conserve le nom de la fonction en cours d'analyse au besoin
+		String fonctionCourante = "";
 		
-		Scanner lect = new Scanner(new File(testing));
+		Scanner lect = new Scanner(new File(input));
 		
 		//Il est trivial de verifier /** car si on trouve /*
 		//on trouve egalement /**, vu que la distinction est arbitraire
@@ -102,13 +116,43 @@ public class selecteurDeLecture {
 					nextEstComment = 1;
 				}
 				
-				System.out.println(codeDansLigne);
+				//on considere les 
+				int finit = 0;
+				String lignePart = codeDansLigne;
+				while(finit == 0) {
+					if(lignePart.indexOf("if") != -1) {
+						
+						noeudPredicat++;
+						lignePart = lignePart.substring(lignePart.indexOf("if")+2);
+						
+					} else if(lignePart.indexOf("for") != -1){
+						
+						noeudPredicat++;
+						lignePart = lignePart.substring(lignePart.indexOf("for")+3);
+							
+					} else if(lignePart.indexOf("while") != -1) {
+						
+						noeudPredicat++;
+						lignePart = lignePart.substring(lignePart.indexOf("while")+5);
+						
+					} else if(lignePart.indexOf("switch") != -1) {
+						
+						noeudPredicat++;
+						lignePart = lignePart.substring(lignePart.indexOf("switch")+6);
+						
+					} else {
+						
+						finit = 1;
+						
+					}
+				}
+			
+			
 			}
 				
 		}
 		
 	}
-	
 	public void calculLOC() {
 		
 		classe_LOC = classe_CLOC + lignesNCLOC;
@@ -119,6 +163,18 @@ public class selecteurDeLecture {
 		calculLOC();
 		if(classe_LOC > 0)
 			classe_DC = classe_CLOC / classe_LOC ;
+		
+	}
+	
+	public void calculWMC() {
+		
+		wMC = 1 + noeudPredicat;
+		
+	}
+	
+	public int calculBC() {
+		
+		return classe_DC/wMC;
 		
 	}
 	
